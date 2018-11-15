@@ -144,7 +144,7 @@ def main():
         outdir = 'data'
         if not os.path.exists(outdir):
             os.mkdir(outdir)
-        filename = "{}/{}.csv".format(outdir, genre)
+        filename = "{}/{}.csv".format(outdir, genre.replace("/", "_"))
         df.to_csv(filename, sep='|', mode="w+")
 
 if __name__ == "__main__":
