@@ -1,18 +1,20 @@
 import requests
-from functools import reduce
-from lxml import etree
-import random
 import pandas as pd
+from lxml import etree
+
+import random
 import os
 import re
+from functools import reduce
+from time import sleep
 
 def get_story(href):
     url = "https://www.fanfiction.net{}".format(href)
     story_xpath = '//*[@id="storytext"]'
-    story_xpath_no_extra = '//*[@id="storytext"]/following-sibling::hr' # sometimes authors put messages at the beginning of their story as a message to the reader. they end it with <hr/>
+    story_xpath_no_extra = '//*[@id="storytext"]/following-sibling::hr' # sometimes authors put direct messages to the reader at the beginning of their story. they end it with <hr/>
     chapters_xpath = '//*[@id="chap_select"]/option'
 
-    def get_story(tree):
+    def get_story_text(tree):
         story_text = tree.xpath(story_xpath_no_extra)
         if len(story_text) == 0:
             story_text = tree.xpath(story_xpath)[0]
@@ -23,18 +25,18 @@ def get_story(href):
     html = requests.get(url).text
     tree = etree.HTML(html)
 
-    story_text = get_story(tree)
+    story_text = get_story_text(tree)
     chapters = tree.xpath(chapters_xpath)
-    chapters = len(reduce((lambda x, y: [y.text] + x if y.text not in x else x), chapters, []))
+    chapters = len(reduce((lambda x, y: [y.text] + x if y.text not in x else x), chapters, [])) # sometimes lxml counts each element twice. this gets rid of duplicates
     if chapters > 10:
         chapters = 10
     chapter_href_prefix = '/'.join(href.split("/")[:3])
-    for i in range(2, chapters-2):
+    for i in range(2, chapters-1):
         chapter_url = "https://www.fanfiction.net{}/{}".format(chapter_href_prefix, i)
         print("fetching chapter: {}".format(chapter_url))
         html = requests.get(chapter_url).text
         tree = etree.HTML(html)
-        story_text += get_story(tree)
+        story_text += get_story_text(tree)
 
     return story_text
 
@@ -89,7 +91,6 @@ def get_books():
 def main():
     genre_samples = 10000
     max_samples_from_book = 5000
-    results_per_page = 25
 
     genre_data = {}
 
@@ -104,15 +105,15 @@ def main():
         pages = get_num_pages(book)
 
         # get links to pages
-        # for page in range(pages):
-        for page in range(3):
+        # for page in range(1, pages):
+        for page in range(1, 3):
             print("Collecting links for page {}".format(page))
             links = collect_links(book, page)
         # for each link
             for link_data in links:
                 genre, author, href = link_data
                 if genre not in genre_data.keys():
-                    print("Found a new genre: {}".format(genre))
+                    print("\nFound a new genre: {}\n".format(genre))
                     genre_data[genre] = []
                 elif len(genre_data[genre]) >= genre_samples:
                     continue
@@ -123,6 +124,7 @@ def main():
                     continue
 
                 story = get_story(href)
+                sleep(.25) # to avoid DOSing fanfic.net. Otherwise the server will randomly fail to respond in a few different ways
                 data = {
                     "story": story,
                     "genre": genre,
@@ -133,7 +135,7 @@ def main():
                 genre_data[genre].append(data)
                 print()
 
-            print("Counts for each genre: {}".format([(key, len(genre_data[key])) for key in genre_data.keys()]))
+            print("Counts for each genre: {}\n".format([(key, len(genre_data[key])) for key in genre_data.keys()]))
             genre_data_lengths_check = [len(genre_data[key]) > genre_samples for key in genre_data.keys()]
             if False not in genre_data_lengths_check:
                 break
@@ -145,7 +147,8 @@ def main():
         if not os.path.exists(outdir):
             os.mkdir(outdir)
         filename = "{}/{}.csv".format(outdir, genre.replace("/", "_"))
-        df.to_csv(filename, sep='|', mode="w+")
+        df.to_csv(filename, sep='|', mode="w+", index=False)
+    print("\nDone!")
 
 if __name__ == "__main__":
     main()
