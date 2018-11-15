@@ -106,7 +106,7 @@ def main():
 
         # get links to pages
         # for page in range(1, pages):
-        for page in range(1, 3):
+        for page in range(1, min(3, pages)):
             print("Collecting links for page {}".format(page))
             links = collect_links(book, page)
         # for each link
