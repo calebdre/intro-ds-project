@@ -98,18 +98,17 @@ def main():
     random.shuffle(books)
 
     #for book in books:
-    for book in books[:2]:
+    for book in books[:5]:
         print("\n\nSourcing samples from {} fanfics".format(book))
         book = book.replace(" ", "-").replace("...", "")
         genre_counts = {}
         pages = get_num_pages(book)
 
-        # get links to pages
         # for page in range(1, pages):
-        for page in range(1, min(3, pages)):
+        for page in range(1, min(4, pages+1)):
             print("Collecting links for page {}".format(page))
             links = collect_links(book, page)
-        # for each link
+            
             for link_data in links:
                 genre, author, href = link_data
                 if genre not in genre_data.keys():
