@@ -3,7 +3,6 @@ import io
 import pickle
 import sys
 from math import ceil
-from multiprocessing import Pool, cpu_count
 import os
 
 base_dir = "embeds"
