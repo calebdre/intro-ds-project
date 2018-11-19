@@ -128,7 +128,8 @@ def main():
                     "story": story,
                     "genre": genre,
                     "book": book,
-                    "href": href
+                    "href": href,
+                    "author": author
                 }
 
                 genre_data[genre].append(data)

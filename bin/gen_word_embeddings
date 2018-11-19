@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+mkdir -p embeds
+
+if [ ! -f "embeds/wiki-news-300d-1M.vec" ]
+then
+    cd embeds
+    echo -e "Downloading pretrained word vectors...\n"
+    curl -O https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki-news-300d-1M.vec.zip
+    tar -xvzf wiki-news-300d-1M.vec.zip
+    rm wiki-news-300d-1M.vec.zip
+    cd ../    
+fi
+
+python load_word_embeddings.py 10000 5000
+python load_word_embeddings.py 25000 5000
+python load_word_embeddings.py 45000 7000
+python load_word_embeddings.py 70000 8000
+python load_word_embeddings.py 100000 10000
