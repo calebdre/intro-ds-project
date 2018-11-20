@@ -1,9 +1,11 @@
 import spacy
 from spacy.tokens import Doc
+import torch
 from multiprocessing import cpu_count
 import random
 from collections import Counter
 import itertools
+from load_word_embeddings import read_word_embeddings
 
 def stop_words_pipe(doc):
     tokens = [token.text for token in doc if token.is_stop is False]
@@ -32,7 +34,7 @@ class CondenseStoryTransforms:
         for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
             sentences = list(doc.sents)
             if offset > 0:
-                out.append(sentences[-n:-offset])
+                out.append(sentences[-n-offset:-offset])
             else:
                 out.append(sentences[-n:])
 
@@ -96,11 +98,38 @@ class CondenseStoryTransforms:
 
 class VocabularyTransforms:
     @staticmethod
-    def to_indices(data):
+    def pair_vocab(data):
         pass
     
     @staticmethod
-    def from_indices(data, vocab):
+    def to_word_embeddings(data, amount = "10k"):
+        embeddings, vocab_size, vector_size = read_word_embeddings(amount)
+        
+        unknown_token = "<unk>"
+        embeddings[unknown_token] = torch.zeros(vocab_size)
+        
+        known_tokens = embeddings.keys()
+        word_idx_map = dict(zip(known_tokens, range(len(known_tokens))))
+        
+        data_embeddings = []
+        for story_tokens in data:
+            embedding_idxs = []
+            for token in story_tokens:
+                if token in known_tokens:
+                    embedding_idxs.append(word_idx_map[token])
+                else:
+                    embedding_idxs.append(word_idx_map[unknown_token])
+            
+            embedding_idxs = torch.tensor(embedding_idxs”)
+            data_embeddings.append(embedding_idxs)
+        
+#         data_embeddings = sorted(data_embeddings, key=lambda emb: emb.shape[1], reverse=True)
+        idx_word_map = dict(zip(range(len(known_tokens)), known_tokens))
+        return data_embeddings, idx_word_map, embeddings
+        
+    
+    @staticmethod
+    def from_indices(data, idx_word_map):
         pass
     
 class TextTransforms:    
