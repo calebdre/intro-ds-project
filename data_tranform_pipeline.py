@@ -1,11 +1,9 @@
 import pandas as pd
 import pickle 
+import os
     
 class DataTransformPipeline:
     def __init__(self, data):
-        if type(data) is not pd.Series:
-            raise Exception("Pipeline only accepts Pandas.Series objects.")
-        
         self.data = data
         self.data_t = data
         self.transform_set = []
@@ -14,21 +12,21 @@ class DataTransformPipeline:
     def transforms(self):
         return [name for name, func in self.transform_set]
 
-    def add_transform(self, name, func = None, args = []):
-        if func is None and not hasattr(self, name):
-            raise Exception("'{}' is not a valid transform.".format(name))
-        
+    def add(self, func, name = None, args = []):
+        if name is None:
+            name = func.__name__
+            
         self.transform_set.append((name, func, args))
         return self
     
-    def apply(self, name):
+    def apply(self, pipeline_name):
         self.data_t = self.data
         
-        for name, transform, args in transform_set:
-            print("Applying {}".format(name))
+        for name, transform, args in self.transform_set:
+            print("Applying '{}'".format(name))
             self.data_t = transform(self.data_t, *args)
         
-        self.save(name)
+        self.save(pipeline_name)
         return self.data_t
     
     def save(self, name):
