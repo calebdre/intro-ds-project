@@ -2,6 +2,7 @@ import spacy
 from spacy.tokens import Doc
 import torch
 from multiprocessing import cpu_count
+import numpy as np
 import random
 from collections import Counter
 import itertools
@@ -120,7 +121,7 @@ class VocabularyTransforms:
                 else:
                     embedding_idxs.append(word_idx_map[unknown_token])
             
-            embedding_idxs = torch.tensor(embedding_idxs”)
+            embedding_idxs = torch.tensor(embedding_idxs)
             data_embeddings.append(embedding_idxs)
         
 #         data_embeddings = sorted(data_embeddings, key=lambda emb: emb.shape[1], reverse=True)
@@ -154,7 +155,7 @@ class TextTransforms:
     
     @staticmethod
     def to_categorical(data):
-        pass
+        return data.astype('category').cat.codes.values.tolist()
 
 class SeriesTransforms:
     @staticmethod
