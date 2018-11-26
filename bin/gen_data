@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+echo "Running the fanfiction.net scraper..."
+python scrape_fanfic.py
+
+echo -e "\n**********\nDone Scraping! Generaing the combined data file..."
+python combine_raw_data.py
+
+echo -e "Find it at 'combined_raw_data.pkl'\n**********"

@@ -28,8 +28,9 @@ def get_story(href):
     story_text = get_story_text(tree)
     chapters = tree.xpath(chapters_xpath)
     chapters = len(reduce((lambda x, y: [y.text] + x if y.text not in x else x), chapters, [])) # sometimes lxml counts each element twice. this gets rid of duplicates
-    if chapters > 10:
-        chapters = 10
+    max_chapters = 10
+    if chapters > max_chapters:
+        chapters = max_chapters
     chapter_href_prefix = '/'.join(href.split("/")[:3])
     for i in range(2, chapters-1):
         chapter_url = "https://www.fanfiction.net{}/{}".format(chapter_href_prefix, i)
@@ -139,17 +140,15 @@ def main():
             if False not in genre_data_lengths_check:
                 break
     print()
+    outdir = 'data'
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
+
     for genre in genre_data:
-        print("saving {}".format(genre.strip()))
+        filename = "{}/{}.csv".format(outdir, genre.strip().replace("/", "_"))
+        print("saving {}".format(filename))
         
-        df = pd.DataFrame(genre_data[genre])
-        
-        outdir = 'data'
-        if not os.path.exists(outdir):
-            os.mkdir(outdir)
-        
-        filename = "{}/{}.csv".format(outdir, genre.replace("/", "_"))
-        df.to_csv(filename, sep='|', mode="w+", index=False)
+        pd.DataFrame(genre_data[genre]).to_csv(filename, sep='|', mode="w+", index=False)
         
     print("\nDone!")
 
