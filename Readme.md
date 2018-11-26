@@ -13,7 +13,7 @@ Train a model to classify genres of stories on reddit
 3. Get the data:  
 `bin/gen_data`  
 
-    - Change the number of samples to get for each genre [here](scrape_fanfic.py#93) and the max number of samples from a single book [here](scrape_fanfic.py#94)
+    - Change the number of samples to get for each genre [here](scrape_fanfic.py#L93) and the max number of samples from a single book [here](scrape_fanfic.py#L94)
     - The fanfiction.net parser gets all the stories for 5 random books, but you can change that number in the script [here](scrape_fanfic.py#L101) if you need more/less
     - Change the number of results pages to scrape for each book [here](scrape_fanfic.py#L107) (there are 25 stories per page)
     - Change the number of chapters for each story to scrape [here](scrape_fanfic.py#L31)
