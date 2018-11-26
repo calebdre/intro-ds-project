@@ -22,7 +22,7 @@ class CondenseStoryTransforms:
     def first_sentences(data, n, offset = 0):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
+        for doc in nlp.pipe(data, batch_size=100, n_threads=cpu_count()):
             sentences = list(doc.sents)
             sentences = sentences[offset:offset+n+1]
             out.append(sentences)
@@ -107,7 +107,7 @@ class VocabularyTransforms:
         embeddings, vocab_size, vector_size = read_word_embeddings(amount)
         
         unknown_token = "<unk>"
-        embeddings[unknown_token] = torch.zeros(vocab_size)
+        embeddings[unknown_token] = torch.zeros(vector_size)
         
         known_tokens = embeddings.keys()
         word_idx_map = dict(zip(known_tokens, range(len(known_tokens))))

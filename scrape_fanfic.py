@@ -91,7 +91,6 @@ def get_books():
 def main():
     genre_samples = 10000
     max_samples_from_book = 5000
-
     genre_data = {}
 
     books = get_books()
@@ -104,8 +103,8 @@ def main():
         genre_counts = {}
         pages = get_num_pages(book)
 
-        # for page in range(1, pages):
-        for page in range(1, min(4, pages+1)):
+        for page in range(1, pages):
+#         for page in range(1, min(4, pages+1)):
             print("Collecting links for page {}".format(page))
             links = collect_links(book, page)
             
@@ -123,7 +122,7 @@ def main():
                     continue
 
                 story = get_story(href)
-                sleep(.25) # to avoid DOSing fanfic.net. Otherwise the server will randomly fail to respond in a few different ways
+                sleep(.15) # to avoid DOSing fanfic.net. Otherwise the server will randomly fail to respond in a few different ways
                 data = {
                     "story": story,
                     "genre": genre,
@@ -142,12 +141,16 @@ def main():
     print()
     for genre in genre_data:
         print("saving {}".format(genre.strip()))
+        
         df = pd.DataFrame(genre_data[genre])
+        
         outdir = 'data'
         if not os.path.exists(outdir):
             os.mkdir(outdir)
+        
         filename = "{}/{}.csv".format(outdir, genre.replace("/", "_"))
         df.to_csv(filename, sep='|', mode="w+", index=False)
+        
     print("\nDone!")
 
 if __name__ == "__main__":
