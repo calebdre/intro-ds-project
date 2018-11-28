@@ -9,11 +9,11 @@ import re
 from functools import reduce
 from time import sleep as _sleep
 
-max_chapters = 5
+max_chapters = 10 # use 'None' for all chapters
 genre_samples = 10000
 max_samples_from_book = 5000
-num_books = 2 # use 'None' for all books
-num_pages = 2 # use 'None' for all pages
+num_books = 25 # use 'None' for all books
+num_pages = 10 # use 'None' for all pages
     
 def sleep():
     sleep_time = random.randint(30,120)/100
@@ -41,7 +41,8 @@ def get_story(href):
     story_text = get_story_text(tree)
     chapters = tree.xpath(chapters_xpath)
     chapters = len(reduce((lambda x, y: [y.text] + x if y.text not in x else x), chapters, [])) # sometimes lxml counts each element twice. this gets rid of duplicates
-    if chapters > max_chapters:
+    
+    if max_chapters is not None and chapters > max_chapters:
         chapters = max_chapters
     chapter_href_prefix = '/'.join(href.split("/")[:3])
     print("Fetching {} chapters for {}".format(chapters if chapters > 0 else 1, story_name))
