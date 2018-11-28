@@ -11,6 +11,9 @@ def split_genres(row):
             row["genre{}".format(i+1)] = genre
         return row
     else:
+        row["genre1"] = row["genre"]
+        row["genre2"] = row["genre"]
+        row["genre3"] = row["genre"]
         return row
 
 def combine_raw_data():

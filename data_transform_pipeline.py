@@ -5,13 +5,12 @@ import os
 transforms_path = "./transforms"
 
 class DataTransformPipeline:
-    def __init__(self, data):
-        self.data = data
-        self.transform_set = []
+    
+    transform_set = []
     
     @property
     def transforms(self):
-        return [name for name, func in self.transform_set]
+        return [name for name, func, args in self.transform_set]
 
     def add(self, func, name = None, args = []):
         if name is None:
@@ -20,7 +19,10 @@ class DataTransformPipeline:
         self.transform_set.append((name, func, args))
         return self
     
-    def apply(self, pipeline_name):        
+    def apply(self, pipeline_name, data):
+        self.data = data
+        
+        print("****************\nStarting '{}' pipeline\n****************\n".format(pipeline_name))
         for name, transform, args in self.transform_set:
             print("Applying '{}'".format(name))
             self.data = transform(self.data, *args)

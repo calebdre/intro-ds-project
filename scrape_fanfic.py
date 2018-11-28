@@ -12,8 +12,8 @@ from time import sleep as _sleep
 max_chapters = 10 # use 'None' for all chapters
 genre_samples = 10000
 max_samples_from_book = 5000
-num_books = 25 # use 'None' for all books
-num_pages = 10 # use 'None' for all pages
+num_books = 100 # use 'None' for all books
+num_pages = 15 # use 'None' for all pages
     
 def sleep():
     sleep_time = random.randint(30,120)/100
@@ -28,8 +28,11 @@ def get_story(href):
     def get_story_text(tree):
         story_text = tree.xpath(story_xpath_no_extra)
         if len(story_text) == 0:
-            story_text = tree.xpath(story_xpath)[0]
-            story_text = ''.join(story_text.itertext())
+            story_text = tree.xpath(story_xpath)
+            if len(story_text) == 0: # TODO: sometimes we can't find the story. fix this
+                return ""
+            else:
+                story_text = ''.join(story_text[0].itertext())
         return story_text
 
     story_name = url.split("/")[-1]
@@ -40,7 +43,7 @@ def get_story(href):
 
     story_text = get_story_text(tree)
     chapters = tree.xpath(chapters_xpath)
-    chapters = len(reduce((lambda x, y: [y.text] + x if y.text not in x else x), chapters, [])) # sometimes lxml counts each element twice. this gets rid of duplicates
+    chapters = len(reduce(lambda x, y: [y.text] + x if y.text not in x else x, chapters, [])) # sometimes lxml counts each element twice. this gets rid of duplicates
     
     if max_chapters is not None and chapters > max_chapters:
         chapters = max_chapters

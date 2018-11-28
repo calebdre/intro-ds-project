@@ -6,7 +6,10 @@ import numpy as np
 import random
 from collections import Counter
 import itertools
+from functools import reduce
 from load_word_embeddings import read_word_embeddings
+
+spacy_batch_size = 50
 
 def stop_words_pipe(doc):
     tokens = [token.text for token in doc if token.is_stop is False]
@@ -19,25 +22,34 @@ def get_nlp():
 
 class CondenseStoryTransforms:
     @staticmethod
-    def first_sentences(data, n, offset = 0):
+    def sents_to_tokens(sents):
+        return reduce(lambda accum, sent: accum + [token.text for token in sent], sents, [])
+    
+    @staticmethod
+    def first_sentence_tokens(data, n, offset = 0):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=100, n_threads=cpu_count()):
-            sentences = list(doc.sents)
-            sentences = sentences[offset:offset+n+1]
-            out.append(sentences)
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
+            sentences = doc.sents
+            sentences = itertools.islice(sentences, offset, offset+n+1)
+            tokens = CondenseStoryTransforms.sents_to_tokens(sentences)
+            out.append(tokens)
         return out
 
     @staticmethod
-    def last_sentences(data, n, offset = 0):
+    def last_sentence_tokens(data, n, offset = 0):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
             sentences = list(doc.sents)
+            
             if offset > 0:
-                out.append(sentences[-n-offset:-offset])
+                sentences = sentences[-n-offset:-offset]
             else:
-                out.append(sentences[-n:])
+                sentences = sentences[-n:]
+            
+            tokens = self.sents_to_tokens(sentences)
+            out.append(tokens)
 
         return out
     
@@ -45,21 +57,21 @@ class CondenseStoryTransforms:
     def random_sentences(data, n):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
             sentences = list(doc.sents)
             
             random_indices = random.sample(range(len(sentences)), n)
             randomized = [sentences[i] for i in random_indices]
             
-            out.append(randomized)
-        
+            tokens = self.sents_to_tokens(randomized)
+            out.append(tokens)
         return out
     
     @staticmethod
     def random_words(data, n):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
             tokens = [token.text for token in doc]
             
             random_indices = random.sample(range(len(tokens)), n)
@@ -72,7 +84,7 @@ class CondenseStoryTransforms:
     def most_common_words(data, n):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
             tokens = [token.text for token in doc]
             
             word_freq = Counter(tokens)
@@ -86,7 +98,7 @@ class CondenseStoryTransforms:
     def least_common_words(data, n):
         nlp = get_nlp()
         out = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
             tokens = [token.text for token in doc]
             
             word_freq = Counter(tokens)
@@ -103,7 +115,7 @@ class VocabularyTransforms:
         pass
     
     @staticmethod
-    def to_word_embeddings(data, amount = "10k"):
+    def to_word_embeddings(data, amount = "45k"):
         embeddings, vocab_size, vector_size = read_word_embeddings(amount)
         
         unknown_token = "<unk>"
@@ -138,20 +150,15 @@ class TextTransforms:
     def tokenize(data):
         nlp = get_nlp()
         tokenized = []
-        for doc in nlp.pipe(data, batch_size=10, n_threads=cpu_count()):
-            tokens = [token.text for token in doc]
+        for doc in nlp.pipe(data, batch_size=spacy_batch_size, n_threads=cpu_count()):
+            tokens = [toke for token in doc]
             tokenized.append(tokens)
         
         return tokenized
     
     @staticmethod
-    def to_strings(spans):
-        sentences = []
-        for span in spans:
-            sentence = [token.text for token in span]
-            sentence = " ".join(sentence)
-            sentences.append(sentence)
-        return sentences
+    def to_strings(data):
+        return [" ".join(datum) for datum in data]
     
     @staticmethod
     def to_categorical(data):
