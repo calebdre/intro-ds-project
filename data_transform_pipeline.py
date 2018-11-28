@@ -20,15 +20,13 @@ class DataTransformPipeline:
         self.transform_set.append((name, func, args))
         return self
     
-    def apply(self, pipeline_name):
-        self.data_t = self.data
-        
+    def apply(self, pipeline_name):        
         for name, transform, args in self.transform_set:
             print("Applying '{}'".format(name))
             self.data = transform(self.data, *args)
         
         self.save(pipeline_name)
-        return self.data_t
+        return self.data
     
     def save(self, name):
         if not os.path.exists(transforms_path):
