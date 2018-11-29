@@ -162,7 +162,10 @@ class TextTransforms:
     
     @staticmethod
     def to_categorical(data):
-        return data.astype('category').cat.codes.values.tolist()
+        data = data.astype("category")
+        mapping = dict(enumerate(data.cat.categories))
+        
+        return data.cat.codes, mapping
 
 class SeriesTransforms:
     @staticmethod
