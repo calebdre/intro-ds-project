@@ -4,3 +4,6 @@ numpy
 torch
 spacy
 lxml
+sklearn
+tensorboard_logger
+tensorflow
