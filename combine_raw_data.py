@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import pickle as pkl
 
-combined_data_filename = "combined_raw_data.pkl"
+combined_data_filename = "combined_raw_data_prod.pkl"
 
 def split_genres(row):
     if "/" in row["genre"]:
@@ -20,11 +20,15 @@ def combine_raw_data():
     dfs = []
     files = [file for file in os.listdir("data") if ".csv" in file]    
     for file in files:
-        path = "data/{}".format(file)
-        genre_data = pd.read_csv(path, sep="|", index_col=None, header=0)
-        dfs.append(genre_data)
+        path = "data_prod/{}".format(file)
+        try:
+            genre_data = pd.read_csv(path, sep="|", index_col=None, header=0)
+            dfs.append(genre_data)
+        except Exception:
+            print("Skipping {}".format(path))
     
     df = pd.concat(dfs, axis = 0, ignore_index = True)
+    df = df[~df["story".isnull()]]
     df = df.apply(split_genres, axis=1)
     
     with open(combined_data_filename, "wb+") as f:
