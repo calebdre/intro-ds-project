@@ -34,7 +34,7 @@ class Data(Dataset):
             labels.append(label)
         
         lengths, sorted_idxs = torch.tensor(lengths).sort(descending=True)
-        data = pad_sequence(data)
+        data = pad_sequence(data, batch_first=True)
         data = data[sorted_idxs]
         labels = torch.tensor(labels)[sorted_idxs]
         
