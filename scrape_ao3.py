@@ -3,11 +3,17 @@ import pandas as pd
 from lxml import etree
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
+from time import sleep as _sleep
 
 search_url = lambda genre, page = 1: "https://archiveofourown.org/works/search?commit=Search&page={}&utf8=%E2%9C%93&work_search%5Bbookmarks_count%5D=&work_search%5Bcharacter_names%5D=&work_search%5Bcomments_count%5D=&work_search%5Bcomplete%5D=&work_search%5Bcreators%5D=&work_search%5Bcrossover%5D=&work_search%5Bfandom_names%5D=&work_search%5Bfreeform_names%5D={}&work_search%5Bhits%5D=&work_search%5Bkudos_count%5D=&work_search%5Blanguage_id%5D=&work_search%5Bquery%5D=&work_search%5Brating_ids%5D=&work_search%5Brelationship_names%5D=&work_search%5Brevised_at%5D=&work_search%5Bsingle_chapter%5D=0&work_search%5Bsort_column%5D=kudos_count&work_search%5Bsort_direction%5D=desc&work_search%5Btitle%5D=&work_search%5Bword_count%5D=".format(page, genre)
 
+def sleep():
+    sleep_time = random.randint(30,120)/100
+    _sleep(sleep_time) 
+
 def get_story(href):
     url = "https://archiveofourown.org{}?view_full_work=true".format(href)
+    sleep()
     html = requests.get(url).text
     tree = etree.HTML(html)
     paragraphs = tree.cssselect("div.userstuff p:not(align)")
