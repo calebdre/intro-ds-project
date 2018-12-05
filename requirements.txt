@@ -7,3 +7,4 @@ lxml
 sklearn
 tensorboard_logger
 tensorflow
+cssselect
