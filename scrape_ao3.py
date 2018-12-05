@@ -40,10 +40,10 @@ def main():
     num_pages = int(15000 / 20) # we want 15000 samples and the site shows 20 per page
     pool = Pool(cpu_count())
     
-    for genre in tqdm(genres, desc = "Genres"):
+    for genre in tqdm(genres, desc = "Genres", unit="genre"):
         print("**************\nScraping {}\n**************".format(genre))
         stories = []
-        for page in tqdm(range(1, num_pages+1), desc = genre, leave = False):
+        for page in tqdm(range(1, num_pages+1), desc = genre, leave = False, unit="page"):
             url = search_url(genre, page)
             html = requests.get(url).text
             links = get_links(html)
